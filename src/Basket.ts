@@ -63,10 +63,10 @@ export class Basket {
      * @returns true if discount can be applied 
      */
     private canApplyDiscount(discount: Discount): boolean {
-        if (!(this.items.find(x => x.name == discount.serviceType))) return false;
+        if (!(this.items.find(x => x.name === discount.serviceType))) return false;
 
         for (let i of discount.required)
-            if (this.items.find(x => x.name == i)) return true;
+            if (this.items.find(x => x.name === i)) return true;
 
         return false;
     }
@@ -116,11 +116,11 @@ export class Basket {
             var mainItem = basketItemsRef.find(x => x.name == discount.serviceType)
             mainItem.price = discount.price;
             for (var val of discount.required) {
-                var reqItem = basketItemsRef.find(x => x.name == val);
+                var reqItem = basketItemsRef.find(x => x.name === val);
                 reqItem.price = 0;
             }
         } else {
-            var mainItem = basketItemsRef.find(x => x.name == discount.serviceType)
+            var mainItem = basketItemsRef.find(x => x.name === discount.serviceType)
             mainItem.price = discount.price;
         }
     }

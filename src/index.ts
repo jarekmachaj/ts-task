@@ -22,7 +22,7 @@ export const calculatePrice = (selectedServices: ServiceType[], selectedYear: Se
     let availableBasketItems = AppData.DATA.PRICES[selectedYear] as BasketItem[];
     let availableDiscounts = AppData.DATA.DISCOUNTS[selectedYear] as Discount[];
 
-    let basketItems = availableBasketItems.filter(x => selectedServices.find(y => y == (x.name as ServiceType)));
+    let basketItems = availableBasketItems.filter(x => selectedServices.find(y => y === (x.name as ServiceType)));
     let basket = new Basket(basketItems);
     basket.addDiscounts(availableDiscounts);
 
