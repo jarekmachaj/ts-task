@@ -7,9 +7,9 @@ describe("basket.calculateprice", () => {
     beforeEach(() => {
         basket = new Basket(
             [
-                { name : "VideoRecording", price : 3000},
-                { name : "Photography", price : 30},
-                { name : "BlurayPackage", price : 20},
+                { name: "VideoRecording", price: 3000 },
+                { name: "Photography", price: 30 },
+                { name: "BlurayPackage", price: 20 },
             ]
         );
     });
@@ -17,7 +17,7 @@ describe("basket.calculateprice", () => {
     afterEach(() => {
         basket = null;
     });
-    
+
     test("should sum properly item prices in basket", () => {
         const result = basket.calculatePrice();
         expect(result).toEqual(3000 + 30 + 20);
@@ -30,7 +30,7 @@ describe("basket.calculateprice", () => {
 
     test("should sum properly items prices in basket after discount", () => {
         basket.addDiscounts([{
-            discountType: "Package",   
+            discountType: "Package",
             serviceType: "Photography",
             required: ["VideoRecording"],
             price: 10,
@@ -47,9 +47,9 @@ describe("basket.calculatediscount", () => {
     beforeEach(() => {
         basket = new Basket(
             [
-                { name : "VideoRecording", price : 3000},
-                { name : "Photography", price : 30},
-                { name : "BlurayPackage", price : 20},
+                { name: "VideoRecording", price: 3000 },
+                { name: "Photography", price: 30 },
+                { name: "BlurayPackage", price: 20 },
             ]
         );
     });
@@ -60,7 +60,7 @@ describe("basket.calculatediscount", () => {
 
     test("should sum properly discounted item prices in basket after discount", () => {
         basket.addDiscounts([{
-            discountType: "Package",   
+            discountType: "Package",
             serviceType: "Photography",
             required: ["VideoRecording"],
             price: 2200,
@@ -69,11 +69,9 @@ describe("basket.calculatediscount", () => {
         expect(result).toEqual(2200 + 0 + 20);
     });
 
-   
-
     test("should not add invalid discounts", () => {
         basket.addDiscounts([{
-            discountType: "Package",   
+            discountType: "Package",
             serviceType: "VideoRecording",
             required: ["TwoDayEvent"],
             price: 1200,
@@ -82,11 +80,9 @@ describe("basket.calculatediscount", () => {
         expect(result).toEqual(3000 + 30 + 20);
     });
 
-  
-
     test("should add valid discounts types", () => {
         basket.addDiscounts([{
-            discountType: "Discount",   
+            discountType: "Discount",
             serviceType: "VideoRecording",
             required: ["BlurayPackage"],
             price: 1200,
