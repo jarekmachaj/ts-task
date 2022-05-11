@@ -4,8 +4,9 @@
   "description": "Task for candidates for innergy developers",
   "main": "src/index.ts",
   "scripts": {
-    "test": "jest",
-    "test:watch": "jest --watch"
+    "test": "jest --coverage",
+    "test:watch": "jest --watch",
+    "test-coverage": "jest --coverage"
   },
   "repository": {
     "type": "git"

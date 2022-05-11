@@ -1,47 +1,11 @@
-export type ServiceYear = 2020 | 2021 | 2022;
-export type ServiceType = "Photography" | "VideoRecording" | "BlurayPackage" | "TwoDayEvent" | "WeddingSession";
+import { Basket } from "./Basket";
+import { Discount } from "./Discount";
+import { BasketItem } from "./BasketItem";
+import { ServiceType, ServiceYear } from "./AppData";
+import { hasOneOf } from "./Utils";
+import * as AppData from './AppData';
 
-const DependentServices = {
-    "BlurayPackage" : ["VideoRecording"],
-    "TwoDayEvent" : ["VideoRecording", "Photography"]
-}
 
-const Prices  = {
-    2020 : 
-        { "Photography" : 1700, "VideoRecording" : 1700, "WeddingSession" : 600, "BlurayPackage" : 300, "TwoDayEvent" : 400 },
-    2021 : 
-        { "Photography" : 1800, "VideoRecording" : 1800, "WeddingSession" : 600, "BlurayPackage" : 300, "TwoDayEvent" : 400 },
-    2022 : 
-        { "Photography" : 1900, "VideoRecording" : 1900, "WeddingSession" : 600, "BlurayPackage" : 300, "TwoDayEvent" : 400 }
-}
-
-const Discounts  = {
-    "Photography" : [{
-            Required : ["VideoRecording"],
-            Type: "Package",
-            Prices: {
-                2020 : 2200,
-                2021 : 2300,
-                2022 : 2500
-        }}]
-    ,
-    "WeddingSession" : [{
-            Required : ["VideoRecording", "Photography"],
-            Type: "Discount",
-            Prices: {
-                2020 : 300,
-                2021 : 300,
-                2022 : 300
-        }},
-        {
-            Required : ["Photography"],
-            Type: "Discount",
-            Prices: {
-                2020 : 300,
-                2021 : 300,
-                2022 : 0
-            }}]
-}
 
 export const updateSelectedServices = (
     previouslySelectedServices: ServiceType[],
@@ -52,132 +16,63 @@ export const updateSelectedServices = (
             return selectAction(previouslySelectedServices, action.service)
         case 'Deselect':
             return deselectAction(previouslySelectedServices, action.service)
-        default:
-            throw new Error();
     }
 };
 
-export const calculatePrice = (selectedServices: ServiceType[], selectedYear: ServiceYear) => {
+export const calculatePrice = (selectedServices: ServiceType[], selectedYear: ServiceYear)  => {
 
-    let basePriceObj = {};
-    let finalPriceObj = {};
-    Object.assign(basePriceObj, Prices[selectedYear]);
-   
-    Object.keys(basePriceObj).forEach(key => {
-        if (!selectedServices.find(x => x == (key as ServiceType))) delete basePriceObj[key];
-    });
+    let availableBasketItems = AppData.DATA.PRICES[selectedYear] as BasketItem[];
+    let availableDiscounts = AppData.DATA.DISCOUNTS[selectedYear] as Discount[];
 
-    Object.assign(finalPriceObj, basePriceObj);
-    let basePrice = calculateBasket(basePriceObj);
+    let basketItems = availableBasketItems.filter(x => selectedServices.find(y => y == (x.name as ServiceType)));
+    let basket = new Basket(basketItems);
+    basket.addDiscounts(availableDiscounts);
 
-    Object.keys(finalPriceObj).forEach(key => {
-        var discount = findBestDiscount(key, finalPriceObj, selectedYear);
-        if (discount != undefined) applySingleDiscount(finalPriceObj, discount, key, selectedYear);
-    });
-
-    let finalPrice = calculateBasket(finalPriceObj);
-
-    return { basePrice , finalPrice }
+    return { basePrice: basket.calculatePrice(), finalPrice: basket.calculateDiscountedPrice() }
 };
 
-let selectAction = (previouslySelectedServices: ServiceType[], selectedService: ServiceType) : ServiceType[] => {
-    let selected = new Set(previouslySelectedServices);
-    //TODO
-    if (selectedService === "BlurayPackage" && selected.has("VideoRecording") == false)
-        return Array.from(selected);
-    if (selectedService === "TwoDayEvent" && selected.has("VideoRecording") == false && selected.has("Photography") == false)
-        return Array.from(selected);
 
+/**
+ * Selects action
+ * @param previouslySelectedServices previously selected services
+ * @param selectedService - new selected service to add
+ * @returns new selected services 
+ */
+function selectAction(previouslySelectedServices: ServiceType[], selectedService: ServiceType): ServiceType[] {
+    let selected = new Set<ServiceType>(previouslySelectedServices);
+
+    //no dependencies - add
+    if (!(AppData.DATA.DEPENDENT_SERVICES[selectedService])) { 
+        selected.add(selectedService); 
+        return Array.from(selected);
+    }
+
+    //missing dependencies - not adding
+    if (hasOneOf<ServiceType>(selected, AppData.DATA.DEPENDENT_SERVICES[selectedService] as ServiceType[]) == false) {
+        return Array.from(selected);
+    }
+
+    //defult - add
     selected.add(selectedService);
-
     return Array.from(selected);
 }
 
-let deselectAction = (previouslySelectedServices: ServiceType[], deselectedService: ServiceType) : ServiceType[] => {
-    let selected = new Set(previouslySelectedServices);
+/**
+ * Deselects action
+ * @param previouslySelectedServices previously selected services
+ * @param deselectedService - selected service to remove
+ * @returns new selected services 
+ */
+function deselectAction(previouslySelectedServices: ServiceType[], deselectedService: ServiceType): ServiceType[] {
+    let selected = new Set<ServiceType>(previouslySelectedServices);
     selected.delete(deselectedService);
 
-    ///Remove not needed
-    Object.keys(DependentServices).forEach( key => {
-        if(hasOneOf(selected, DependentServices[key]) == false) {
+    ///Remove not needed - depended services
+    Object.keys(AppData.DATA.DEPENDENT_SERVICES).forEach(key => {
+        if (hasOneOf(selected, AppData.DATA.DEPENDENT_SERVICES[key]) == false) {
             selected.delete(key as ServiceType);
         }
     });
 
     return Array.from(selected);
-}
-
-let calculateBasket = (basePriceObj: any) : number => {
-    let price = 0;
-    Object.keys(basePriceObj).forEach(key => {
-        price += basePriceObj[key];
-    });
-    return price;
-}
-
-let calculateSingleDiscount = (pricingObj : any, discountName: string, discount: any, year: number) : number => {
-    var calculateObj = {};
-    Object.assign(calculateObj, pricingObj);
-
-    if (discount.Type == "Package"){
-
-        calculateObj[discountName] = discount.Prices[year];
-        for (var val of discount.Required) {
-            calculateObj[val] = 0;
-        }
-    } else {
-        calculateObj[discountName] = discount.Prices[year];
-    }
-
-    return calculateBasket(calculateObj);
-}
-
-let validateDiscount = (primaryServiceName: string, discount: any, pricingObj: any ) : boolean => {
-
-    if (!(primaryServiceName in pricingObj)) return false;
-
-    for (let i of discount.Required)
-        if (i in pricingObj) return true;
-
-    return false;
-}
-
-let findBestDiscount = (primaryServiceName: string, pricingObj: any, year : number) : any => {
-
-    let selectedDiscounts = Discounts[primaryServiceName];
-    if (selectedDiscounts == undefined) return undefined;
-    let minDiscount = undefined;
-    let discountResult = undefined;
-    for (let discount of selectedDiscounts){
-        if (!validateDiscount(primaryServiceName, discount, pricingObj)) continue;
-        var afterDisc = calculateSingleDiscount(pricingObj, primaryServiceName, discount, year);
-        if (minDiscount == undefined || afterDisc < minDiscount) {
-            minDiscount = afterDisc;
-            discountResult = discount;
-        }
-    } 
-    return discountResult;
-}
-
-let applySingleDiscount = (basketObj : any, discountObj: any, discountName: string, year: number) => {
-   
-    if (discountObj.Type == "Package"){
-
-        basketObj[discountName] = discountObj.Prices[year];
-        for (var val of discountObj.Required) {
-            basketObj[val] = 0;
-        }
-    } else {
-        basketObj[discountName] = discountObj.Prices[year];
-    }
-}
-
-let hasOneOf = (items : Set<string>, arrToCheck: string[]) : boolean => {
-    var result = false;
-
-    arrToCheck.forEach(element => {
-        if (items.has(element)) result = true;
-    });
-    
-    return result;
 }
