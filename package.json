@@ -1,7 +1,7 @@
 {
-  "name": "innergy-typescript-task",
+  "name": "typescript-task",
   "version": "1.0.0",
-  "description": "Task for candidates for innergy developers",
+  "description": "",
   "main": "src/index.ts",
   "scripts": {
     "test": "jest --coverage",
@@ -12,7 +12,7 @@
     "type": "git"
   },
   "keywords": [],
-  "author": "Innergy",
+  "author": "jjj",
   "devDependencies": {
     "@types/jest": "25.2.3",
     "jest": "26.0.1",
