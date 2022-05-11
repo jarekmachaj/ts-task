@@ -5,12 +5,10 @@ import { ServiceType, ServiceYear } from "./AppData";
 import { hasOneOf } from "./Utils";
 import * as AppData from './AppData';
 
-
-
 export const updateSelectedServices = (
     previouslySelectedServices: ServiceType[],
     action: { type: "Select" | "Deselect"; service: ServiceType }
-) => {
+): ServiceType[] => {
     switch (action.type) {
         case 'Select':
             return selectAction(previouslySelectedServices, action.service)
@@ -19,7 +17,7 @@ export const updateSelectedServices = (
     }
 };
 
-export const calculatePrice = (selectedServices: ServiceType[], selectedYear: ServiceYear)  => {
+export const calculatePrice = (selectedServices: ServiceType[], selectedYear: ServiceYear): any => {
 
     let availableBasketItems = AppData.DATA.PRICES[selectedYear] as BasketItem[];
     let availableDiscounts = AppData.DATA.DISCOUNTS[selectedYear] as Discount[];
