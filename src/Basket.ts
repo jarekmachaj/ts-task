@@ -12,6 +12,21 @@ export class Basket {
     private discountsToApply: Map<ServiceType, Discount>;
 
     /**
+     * Calculates base price (without discounts)
+     * @returns price : number
+     */
+    calculatePrice = () : number => Basket.calculateItems(this.items);  
+
+    /**
+     * Calculates discounted price
+     * @returns discounted price 
+     */
+     calculateDiscountedPrice = (): number  => {
+        this.applyDiscounts();
+        return Basket.calculateItems(this.discountedItems);
+    }
+
+    /**
      * Creates an instance of basket service
      * @param basketItems preloaded items in basket
      */
@@ -26,13 +41,6 @@ export class Basket {
         });
     }
 
-    /**
-     * Calculates base price (without discounts)
-     * @returns price : number
-     */
-    calculatePrice(): number {
-        return Basket.calculateItems(this.items);
-    }
 
     /**
      * Calculates price for specified basket items
@@ -41,17 +49,6 @@ export class Basket {
      */
     private static calculateItems(basketItems: BasketItem[]): number {
         return basketItems.reduce((counter, item) => {
-            return counter + item.price;
-        }, 0);
-    }
-
-    /**
-     * Calculates discounted price
-     * @returns discounted price 
-     */
-    calculateDiscountedPrice(): number {
-        this.applyDiscounts();
-        return this.discountedItems.reduce((counter, item) => {
             return counter + item.price;
         }, 0);
     }
