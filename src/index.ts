@@ -18,7 +18,6 @@ export const updateSelectedServices = (
 };
 
 export const calculatePrice = (selectedServices: ServiceType[], selectedYear: ServiceYear): any => {
-
     let availableBasketItems = AppData.DATA.PRICES[selectedYear] as BasketItem[];
     let availableDiscounts = AppData.DATA.DISCOUNTS[selectedYear] as Discount[];
 
