@@ -25,7 +25,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>74/74</span>
+                <span class='fraction'>72/72</span>
             </div>
         
             
@@ -46,7 +46,7 @@
             <div class='fl pad1y space-right2'>
                 <span class="strong">100% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>52/52</span>
+                <span class='fraction'>51/51</span>
             </div>
         
             
@@ -202,9 +202,7 @@
 <a name='L143'></a><a href='#L143'>143</a>
 <a name='L144'></a><a href='#L144'>144</a>
 <a name='L145'></a><a href='#L145'>145</a>
-<a name='L146'></a><a href='#L146'>146</a>
-<a name='L147'></a><a href='#L147'>147</a>
-<a name='L148'></a><a href='#L148'>148</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
+<a name='L146'></a><a href='#L146'>146</a></td><td class="line-coverage quiet"><span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -220,7 +218,6 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">88x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -239,10 +236,8 @@
 <span class="cline-any cline-yes">88x</span>
 <span class="cline-any cline-yes">88x</span>
 <span class="cline-any cline-yes">88x</span>
-<span class="cline-any cline-yes">88x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">88x</span>
-<span class="cline-any cline-yes">133x</span>
 <span class="cline-any cline-yes">133x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -298,13 +293,14 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-yes">85x</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">85x</span>
 <span class="cline-any cline-yes">85x</span>
 <span class="cline-any cline-yes">124x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">85x</span>
 <span class="cline-any cline-yes">85x</span>
 <span class="cline-any cline-yes">85x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -361,7 +357,6 @@ import { ServiceType } from "./AppData";
  */
 export class Basket {
     private items: BasketItem[];
-    private discountedItems: BasketItem[];
     private discountsToApply: Map&lt;ServiceType, Discount&gt;;
 &nbsp;
     /**
@@ -375,8 +370,8 @@ export class Basket {
      * @returns discounted price 
      */
      calculateDiscountedPrice = (): number  =&gt; {
-        this.applyDiscounts();
-        return Basket.calculateItems(this.discountedItems);
+        let discountedItems = this.applyDiscounts();
+        return Basket.calculateItems(discountedItems);
     }
 &nbsp;
     /**
@@ -385,12 +380,10 @@ export class Basket {
      */
     constructor(basketItems: BasketItem[]) {
         this.items = [];
-        this.discountedItems = [];
         this.discountsToApply = new Map&lt;ServiceType, Discount&gt;();
         //simple js cloning
         basketItems.forEach(val =&gt; {
             this.items.push(Object.assign({}, val));
-            this.discountedItems.push(Object.assign({}, val));
         });
     }
 &nbsp;
@@ -445,15 +438,16 @@ export class Basket {
     /**
      * Recreates discounted items and applies discounts
      */
-    private applyDiscounts(): void {
+    private applyDiscounts(): BasketItem[] {
         //cloning items to discounted items- clears previous discounts
-        this.discountedItems = [];
+        let discountedItems: BasketItem[] = [];
         this.items.forEach(val =&gt; {
-            this.discountedItems.push(Object.assign({}, val));
+            discountedItems.push(Object.assign({}, val));
         });
 &nbsp;
         let discountsToApply = Array.from(this.discountsToApply.values());
-        discountsToApply.forEach(disc =&gt; Basket.applySingleDiscount(disc, this.discountedItems));
+        discountsToApply.forEach(disc =&gt; Basket.applySingleDiscount(disc, discountedItems));
+        return discountedItems;
     }
 &nbsp;
     /**
@@ -505,7 +499,7 @@ export class Basket {
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank">istanbul</a>
-                at Wed May 11 2022 12:21:55 GMT+0200 (czas środkowoeuropejski letni)
+                at Thu May 12 2022 21:28:32 GMT+0200 (czas środkowoeuropejski letni)
             </div>
         </div>
         <script src="prettify.js"></script>

@@ -8,7 +8,6 @@ import { ServiceType } from "./AppData";
  */
 export class Basket {
     private items: BasketItem[];
-    private discountedItems: BasketItem[];
     private discountsToApply: Map<ServiceType, Discount>;
 
     /**
@@ -22,8 +21,8 @@ export class Basket {
      * @returns discounted price 
      */
      calculateDiscountedPrice = (): number  => {
-        this.applyDiscounts();
-        return Basket.calculateItems(this.discountedItems);
+        let discountedItems = this.applyDiscounts();
+        return Basket.calculateItems(discountedItems);
     }
 
     /**
@@ -32,12 +31,10 @@ export class Basket {
      */
     constructor(basketItems: BasketItem[]) {
         this.items = [];
-        this.discountedItems = [];
         this.discountsToApply = new Map<ServiceType, Discount>();
         //simple js cloning
         basketItems.forEach(val => {
             this.items.push(Object.assign({}, val));
-            this.discountedItems.push(Object.assign({}, val));
         });
     }
 
@@ -92,15 +89,16 @@ export class Basket {
     /**
      * Recreates discounted items and applies discounts
      */
-    private applyDiscounts(): void {
+    private applyDiscounts(): BasketItem[] {
         //cloning items to discounted items- clears previous discounts
-        this.discountedItems = [];
+        let discountedItems: BasketItem[] = [];
         this.items.forEach(val => {
-            this.discountedItems.push(Object.assign({}, val));
+            discountedItems.push(Object.assign({}, val));
         });
 
         let discountsToApply = Array.from(this.discountsToApply.values());
-        discountsToApply.forEach(disc => Basket.applySingleDiscount(disc, this.discountedItems));
+        discountsToApply.forEach(disc => Basket.applySingleDiscount(disc, discountedItems));
+        return discountedItems;
     }
 
     /**
